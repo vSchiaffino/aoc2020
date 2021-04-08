@@ -1,18 +1,14 @@
 import copy
+import json
+import numpy
 """
-gold
-    dark olive
-        3 faded blue
-        4 dotted black
-    2 vibrant plum
-        5 faded blue
-        6 dotted black
+
 """
 sum = -1
 def main():
+    keyValues = {}
     with open("input.in", "r") as f:
         lines = f.readlines()
-        keyValues = {}
         for line in lines:
             line = line.replace("\n", "").replace(".", "")
             parts = line.split(" bags contain ")
@@ -27,30 +23,42 @@ def main():
                     q = int(sep_value[0])
                     color_list = sep_value[1:-1]
                     color = " ".join(color_list)
-                    values.append({"q": q, "color": color})
+                    values.append({"color": color, "q": q})
 
             keyValues[key] = values
-        countingBags = getAllTheBagsInside("shiny gold", keyValues)
-        final = []
-        for bag in countingBags:
-            if bag not in final and bag != "shiny gold":
-                final.append(bag)
-        print(len(final))
-    
-def getAllTheBagsInside(key, allBags):
-    # print(key)
-    # print("    ", end="")
-    bagsInside = []
-    childBags = allBags[key]
-    bagsInside.append(key)
-    if childBags is not None:
-        for childBag in childBags:
-            values = getAllTheBagsInside(childBag["color"], allBags)
-            print(f"{childBag['color']} {values}")
-            bagsInside.extend(values)
-        print("--")
+        
+        count = 0
+        for bag in keyValues:
+            if(containsShinyBag(bag, keyValues)):
+                count += 1
+        print(count)
+        print(qBagsInside("shiny gold", keyValues))
 
-    return bagsInside
+
+def containsShinyBag(key, allBags):
+    childs = allBags[key]
+    if childs is not None:
+        for child in childs:
+            if child["color"] == "shiny gold" or containsShinyBag(child["color"], allBags):
+                return True
+    return False
+
+def qBagsInside(key, allBags):
+    bagsInside = allBags[key]
+    if(bagsInside is None):
+        return 0
+    count = 0
+    for bag in bagsInside:
+        count += bag["q"]
+        count += (bag["q"] * qBagsInside(bag["color"], allBags))
+    return count
+
+
+
+    
+
+        
+
 
         
 
