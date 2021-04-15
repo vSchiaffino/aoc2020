@@ -3,6 +3,9 @@ from copy import deepcopy
 
 def main():
     seats = getSeats()
+    # for _ in range(5):
+    #     seats = round(seats)
+    # show(seats)
     lastSeats = deepcopy(seats)
     while(1):
         seats = round(seats)
@@ -49,51 +52,66 @@ def round(seats):
         for j in range(len(row)):
             seat = row[j]
             if seat == "L":
-                movs = [
+                directions = [
                     #c, r
-                    (0, -1),
-                    (1, -1),
-                    (1, 0),
-                    (1, 1),
-                    (0, 1),
-                    (-1, 1),
-                    (-1, 0),
-                    (-1, -1),
+                    [0, -1],
+                    [1, -1],
+                    [1, 0],
+                    [1, 1],
+                    [0, 1],
+                    [-1, 1],
+                    [-1, 0],
+                    [-1, -1],
                 ]
                 makeChange = True
-                for mov in movs:
-                    seatAfterMov = applyMov(seats, [i, j], mov)
-                    if(seatAfterMov != None):
-                        if(seatAfterMov == "#"):
-                            makeChange = False
+                for dir in directions:
+                    x = 1
+                    while 1:
+                        seatAfterMov = applyMov(seats, [i, j], deepcopy(dir), x)
+                        if(seatAfterMov == None or seatAfterMov == "L"):
                             break
+                        else:
+                            if(seatAfterMov == "#"):
+                                makeChange = False
+                                break
+                        x += 1
+                    if(not makeChange):
+                        break
                 if makeChange:
                     final[i][j] = "#"
             elif seat == "#":
-                occupiedCount = 0
-                movs = [
+                directions = [
                     #c, r
-                    (0, -1),
-                    (1, -1),
-                    (1, 0),
-                    (1, 1),
-                    (0, 1),
-                    (-1, 1),
-                    (-1, 0),
-                    (-1, -1),
+                    [0, -1],
+                    [1, -1],
+                    [1, 0],
+                    [1, 1],
+                    [0, 1],
+                    [-1, 1],
+                    [-1, 0],
+                    [-1, -1],
                 ]
-                for mov in movs:
-                    seatAfterMov = applyMov(seats, [i, j], mov)
-                    if(seatAfterMov != None):
-                        if(seatAfterMov == "#"):
-                            occupiedCount += 1
-                            if(occupiedCount == 4):
-                                final[i][j] = "L"
-                                continue
+                occupiedCount = 0
+                for dir in directions:
+                    x = 1
+                    while 1:
+                        seatAfterMov = applyMov(seats, [i, j], deepcopy(dir), x)
+                        if(seatAfterMov == None or seatAfterMov == "L"):
+                            break
+                        else:
+                            if(seatAfterMov == "#"):
+                                occupiedCount += 1
+                                break
+                        x += 1
+                    if(occupiedCount == 5):
+                        final[i][j] = "L"
+                        break
 
     return final
                 
-def applyMov(seats, pos, mov):
+def applyMov(seats, pos, mov, x):
+    mov[0] = mov[0] * x
+    mov[1] = mov[1] * x
     x = pos[0] + mov[1]
     y = pos[1] + mov[0]
     if x < 0 or x >= len(seats) or y < 0 or y >= len(seats[0]):
